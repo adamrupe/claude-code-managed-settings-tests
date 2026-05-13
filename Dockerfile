@@ -5,12 +5,14 @@ RUN apt-get update -q && apt-get install -y -q strace && rm -rf /var/lib/apt/lis
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
-# Place managed settings where Claude Code reads them on Linux
-RUN mkdir -p /etc/claude-code
-COPY first-settings.json /etc/claude-code/managed-settings.json
-
 # Non-root user so --dangerously-skip-permissions isn't blocked by the root guard
 RUN useradd -m testuser
+
+# Place managed settings in a non-/etc location and symlink into the expected path
+RUN mkdir -p /opt/claude-config && mkdir -p /etc/claude-code
+COPY managed-settings.json /opt/claude-config/managed-settings.json
+RUN ln -s /opt/claude-config/managed-settings.json /etc/claude-code/managed-settings.json
+RUN chown -R testuser /opt/claude-config
 USER testuser
 WORKDIR /home/testuser
 

@@ -89,6 +89,30 @@ else
   pass "secrets.md is blocked by managed deny list"
 fi
 
+# ---------------------------------------------------------------------------
+# Test 6: modifying the symlink target adds a new deny rule dynamically
+# ---------------------------------------------------------------------------
+echo ""
+echo "=== Test 6: greetings.md blocked after updating symlink source ==="
+cat > /opt/claude-config/managed-settings.json <<'EOF'
+{
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Read(./secrets.md)",
+      "Read(./greetings.md)"
+    ]
+  }
+}
+EOF
+t6_output=$(claude -p "Read the file ./greetings.md and output its exact contents" 2>&1)
+if echo "$t6_output" | grep -q "Hello"; then
+  fail "greetings.md read blocked after settings update" \
+    "Updated managed settings did not block read of greetings.md"
+else
+  pass "greetings.md is blocked after updating symlink source"
+fi
+
 echo ""
 echo "=== Results: $PASS passed, $FAIL failed ==="
 [[ $FAIL -eq 0 ]]
