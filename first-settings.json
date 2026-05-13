@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Read(./secrets.md)",
+      "Read(./greetings.md"
+    ]
+  }
+}
